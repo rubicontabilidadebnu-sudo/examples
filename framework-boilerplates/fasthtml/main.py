@@ -1,41 +1,36 @@
-from fasthtml.common import *
+# arquivo: grafico_barras.py
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
 
-app, rt = fast_app(hdrs=(picolink))
+# Título da página
+st.set_page_config(page_title="Barras Verdes Interativas", layout="centered")
+st.title("📊 Controle de Barras - DT, MRL, ADM")
 
+# Entradas numéricas
+st.sidebar.header("Preencha os valores")
+dt = st.sidebar.slider("DT", 0, 7, 0)
+mrl = st.sidebar.slider("MRL", 0, 5, 0)
+adm = st.sidebar.slider("ADM", 0, 8, 0)
 
-@rt("/")
-def get():
-    return (
-        Socials(
-            title="Vercel + FastHTML",
-            site_name="Vercel",
-            description="A demo of Vercel and FastHTML integration",
-            image="https://vercel.fyi/fasthtml-og",
-            url="https://fasthtml-template.vercel.app",
-            twitter_site="@vercel",
-        ),
-        Container(
-            Card(
-                Group(
-                    P(
-                        "FastHTML is a new next-generation web framework for fast, scalable web applications with minimal, compact code. It builds on top of popular foundations like ASGI and HTMX. You can now deploy FastHTML with Vercel CLI or by pushing new changes to your git repository.",
-                    ),
-                ),
-                header=(Titled("FastHTML + Vercel")),
-                footer=(
-                    P(
-                        A(
-                            "Deploy your own",
-                            href="https://vercel.com/templates/python/fasthtml-python-boilerplate",
-                        ),
-                        " or ",
-                        A("learn more", href="https://docs.fastht.ml/"),
-                        "about FastHTML.",
-                    )
-                ),
-            ),
-        ),
-    )
+# Cria DataFrame
+dados = pd.DataFrame({
+    "Categoria": ["DT", "MRL", "ADM"],
+    "Valor": [dt, mrl, adm]
+})
 
+# Cria o gráfico
+fig, ax = plt.subplots(figsize=(5, 5))
+barras = ax.bar(dados["Categoria"], dados["Valor"], color="green")
+ax.set_ylim(0, 8)
+ax.set_ylabel("Nível")
+ax.set_title("Preenchimento em Tempo Real")
 
-serve()
+# Adiciona os números no topo das barras
+for barra in barras:
+    altura = barra.get_height()
+    ax.text(barra.get_x() + barra.get_width() / 2, altura + 0.1,
+            f"{int(altura)}", ha="center", va="bottom", fontsize=12, fontweight="bold")
+
+# Mostra o gráfico
+st.pyplot(fig)
